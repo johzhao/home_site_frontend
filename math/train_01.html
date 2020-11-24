@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <title>口算</title>
+    <script src="/js/vue.min.js"></script>
+</head>
+
+<body>
+    <style>
+        #app ul {
+            list-style-type: none;
+        }
+        
+        li span {
+            display: inline-block;
+            font-size: 60px;
+            width: 100px;
+            text-align: right;
+        }
+        
+        li input {
+            display: inline-block;
+            font-size: 60px;
+            width: 150px;
+            padding: 0, 0, 0, 16px;
+        }
+        
+        button {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+
+    <main id="app">
+        <ul>
+            <li v-for="question in questions">
+                <div>
+                    <span>{{ question.num1 }}</span> <span>{{ question.operator }}</span> <span>{{ question.num2 }}</span> <span>=</span> <input type="number" v-model="question.result" />
+                </div>
+            </li>
+        </ul>
+        <button onclick="submit_answers()" type="submit">Submit</button>
+    </main>
+
+    <dialog id="score">
+        <p>Questions: 20 / 100</p>
+        <p>Score: 20</p>
+    </dialog>
+
+    <script>
+        function get_random_integer(min, max) {
+            let value = Math.random() * (max - min);
+            value = value + min;
+            return value.toFixed();
+        }
+
+        function make_add_question() {
+            return {
+                num1: get_random_integer(5, 10),
+                operator: '+',
+                num2: get_random_integer(5, 10),
+                result: 0
+            }
+        }
+
+        function generate_questions(count) {
+            let result = [];
+            for (let i = 0; i < count; i++) {
+                result.push(make_add_question())
+            }
+            return result;
+        }
+
+        let app = new Vue({
+            el: '#app',
+            data: {
+                questions: generate_questions(4)
+            },
+            computed: {
+
+            }
+        })
+
+        function submit_answers() {
+            let correct_count = 0;
+            for (const question of app.questions) {
+                let result = eval(`${question.num1} ${question.operator} ${question.num2}`);
+                if (result === parseInt(question.result)) {
+                    correct_count++;
+                }
+            }
+            let score = correct_count / app.questions.length * 100;
+            console.log(`score was ${score}`);
+
+            let dlg = document.getElementById('score');
+            dlg.showModal();
+        }
+    </script>
+</body>
+
+</html>
